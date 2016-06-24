@@ -15,23 +15,23 @@ imageLoader.requestImage(resizeImageURL) { (Status, Image) in
 }
 
 #Details
--Caching is taken care of in the MMNetworking class. This class is abstracted to MMImageLoader. 
--MMNetworking can handle any type of data. JSON Example shown in example app "Showcase"
--MMNetworking handles the caching to memory (size set to 50MB and configurable from the class file. Can change to disk cache as well), multiple parallel downloads. Maximum number of connections is set to 10 for parallel downloads (this is configurable as well).
+- Caching is taken care of in the MMNetworking class. This class is abstracted to MMImageLoader. 
+- MMNetworking can handle any type of data. JSON Example shown in example app "Showcase"
+- MMNetworking handles the caching to memory (size set to 50MB and configurable from the class file. Can change to disk cache as well), multiple parallel downloads. Maximum number of connections is set to 10 for parallel downloads (this is configurable as well).
 
 #Example App Details (Showcase)
 
--Showcase shows the MMImageLoader class in action.
--Showcase shows downloaded pictures in a Collection View. And shows the Image details in a UIViewController.
--There is an extra feature for devices with 3D Touch. So please check that out ;)
--Showcase uses https://unsplash.it  API which is free. The API URL is https://unsplash.it/list 
+- Showcase shows the MMImageLoader class in action.
+- Showcase shows downloaded pictures in a Collection View. And shows the Image details in a UIViewController.
+- There is an extra feature for devices with 3D Touch. So please check that out ;)
+- Showcase uses https://unsplash.it  API which is free. The API URL is https://unsplash.it/list 
 	- The API does not have any pagination so image parallel download limits have been set to 10 as per requirement.
 	- Using the API's resizing future so as not to download large size images into the UICollectionView
 		- Please note the URL's for the pictures in the Grid View and the Detail View are different. Different URL's for different sizes
 		- Caching can be checked after the picture has been loaded once in the Detail View or the Grid View
 	- The API JSON data is downloaded using the MMNetworking class, to show that it can be used for JSON as well
--Showcase app is compatible with all iOS Devices with versions iOS 8.0 and up
--Test classes for MMNetworking and MMImageLoader has been included as well
+- Showcase app is compatible with all iOS Devices with versions iOS 8.0 and up
+- Test classes for MMNetworking and MMImageLoader has been included as well
 
 ## License
 
