@@ -7,12 +7,14 @@ To use the library just include the MMTools Folder to your project.
 # Usage
 MMImageLoader Usage Example:
 
+```swift
 let imageLoader = MMImageLoader()
 imageLoader.requestImage(resizeImageURL) { (Status, Image) in
       if Status{
                 self.ImageView.image  = Image
        }
 }
+```
 
 #Details
 - Caching is taken care of in the MMNetworking class. This class is abstracted to MMImageLoader. 
