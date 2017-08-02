@@ -13,7 +13,7 @@ enum API: String{
     case Client = "https://unsplash.it/"
     case List   = "list/"               //Client + List
     
-    static func Resize(Width Width:Int, Height:Int, ImageID: Int) -> String{
+    static func Resize(Width:Int, Height:Int, ImageID: Int) -> String{
         if Height == 0{
             return Client.rawValue + String(Width) + "?image=" + String(ImageID)
         }else{

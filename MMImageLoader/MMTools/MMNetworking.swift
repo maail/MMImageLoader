@@ -9,26 +9,26 @@
 import Foundation
 
 
-class MMNetworking: NSObject, NSURLSessionTaskDelegate{
+class MMNetworking: NSObject, URLSessionTaskDelegate{
     
     static let sharedManager      = MMNetworking()
     
-    var Session                   = NSURLSession()
-    let URLCache                  = NSURLCache(memoryCapacity: 50 * 1024 * 1024, diskCapacity: 0, diskPath: nil)//Allocate 50MB of Memory
+    var Session                   = URLSession()
+    let URLCache                  = Foundation.URLCache(memoryCapacity: 50 * 1024 * 1024, diskCapacity: 0, diskPath: nil)//Allocate 50MB of Memory
     
     let URLRequestTimeOutInterval = 30.0
-    let CacheStoragePolicy        = NSURLCacheStoragePolicy.AllowedInMemoryOnly //can change here to allow disk cache
-    let RequestCachePolicy        = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
+    let CacheStoragePolicy        = Foundation.URLCache.StoragePolicy.allowedInMemoryOnly //can change here to allow disk cache
+    let RequestCachePolicy        = NSURLRequest.CachePolicy.returnCacheDataElseLoad
     
     let requestLimit              = 10 //set number of connections at a given time
     
     override init() {
         super.init()
-        let URLConfig                           = NSURLSessionConfiguration.defaultSessionConfiguration()
-        URLConfig.requestCachePolicy            = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
-        URLConfig.URLCache                      = URLCache
-        URLConfig.HTTPMaximumConnectionsPerHost = requestLimit //set number of connections at a given time. currently set to 10
-        self.Session                            = NSURLSession(configuration: URLConfig, delegate: self, delegateQueue: nil)
+        let URLConfig                           = URLSessionConfiguration.default
+        URLConfig.requestCachePolicy            = NSURLRequest.CachePolicy.returnCacheDataElseLoad
+        URLConfig.urlCache                      = URLCache
+        URLConfig.httpMaximumConnectionsPerHost = requestLimit //set number of connections at a given time. currently set to 10
+        self.Session                            = URLSession(configuration: URLConfig, delegate: self, delegateQueue: nil)
     }
     
     
@@ -39,30 +39,30 @@ class MMNetworking: NSObject, NSURLSessionTaskDelegate{
      * @param      NSURL
      * @return     Status, Data
      */
-    func makeRequest(URL: String, completion: (Status:Bool, Data:NSData) -> ()){
-        let nsURL      = NSURL(string: URL)
-        let URLRequest = NSURLRequest(URL: nsURL!, cachePolicy: self.RequestCachePolicy, timeoutInterval: URLRequestTimeOutInterval)
+    func makeRequest(_ URL: String, completion: @escaping (_ Status:Bool, _ Data:Data) -> ()){
+        let nsURL      = Foundation.URL(string: URL)
+        let URLRequest = Foundation.URLRequest(url: nsURL!, cachePolicy: self.RequestCachePolicy, timeoutInterval: URLRequestTimeOutInterval)
         checkCache(URLRequest) { (Status, Data) in
             if Status{
                 print("MMNetworkingInfo: Data loaded from cache for (\(URL))" )
-                completion(Status: Status, Data: Data)
+                completion(Status, Data)
             }else{
-                let task = self.Session.dataTaskWithURL(nsURL!) {(data, response, error) in
+                let task = self.Session.dataTask(with: nsURL!, completionHandler: {(data, response, error) in
                     if let errorUnwrapped = error{
                         print("MMNetworkingErrorDescription:" + errorUnwrapped.localizedDescription)
-                        completion(Status: false, Data: NSData())
+                        completion(false, Foundation.Data())
                     }else{
                         if let dataUnwrapped = data{
                             //cache here
-                            self.URLCache.storeCachedResponse(NSCachedURLResponse(response:response!, data:dataUnwrapped, userInfo:nil, storagePolicy:self.CacheStoragePolicy), forRequest: URLRequest)
-                            dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                               completion(Status: true, Data: dataUnwrapped)
+                            self.URLCache.storeCachedResponse(CachedURLResponse(response:response!, data:dataUnwrapped, userInfo:nil, storagePolicy:self.CacheStoragePolicy), for: URLRequest)
+                            DispatchQueue.main.async { () -> Void in
+                               completion(true, dataUnwrapped)
                             }
                         }else{
-                            completion(Status: true, Data: NSData())
+                            completion(true, Foundation.Data())
                         }
                     }
-                }
+                }) 
                 task.resume()
             }
         }
@@ -76,15 +76,15 @@ class MMNetworking: NSObject, NSURLSessionTaskDelegate{
      * @param      NSURLRequest
      * @return     Status, Data
      */
-    func checkCache(URLRequest: NSURLRequest, completion: (Status:Bool, Data:NSData) -> ()){
-        if let response = URLCache.cachedResponseForRequest(URLRequest) {
-            if response.data.length > 0 {
-                completion(Status: true, Data: response.data)
+    func checkCache(_ URLRequest: Foundation.URLRequest, completion: (_ Status:Bool, _ Data:Data) -> ()){
+        if let response = URLCache.cachedResponse(for: URLRequest) {
+            if response.data.count > 0 {
+                completion(true, response.data)
             }else{
-                completion(Status: false, Data: NSData())
+                completion(false, Data())
             }
         }else{
-            completion(Status: false, Data: NSData())
+            completion(false, Data())
         }
     }
     
@@ -96,7 +96,7 @@ class MMNetworking: NSObject, NSURLSessionTaskDelegate{
      * @param      NSURL
      * @return     void
      */
-    func cancelConnection(URL:NSURL) {
-        self.Session.dataTaskWithURL(URL).cancel()
+    func cancelConnection(_ URL:Foundation.URL) {
+        self.Session.dataTask(with: URL).cancel()
     }
 }

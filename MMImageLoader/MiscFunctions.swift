@@ -17,7 +17,7 @@ import UIKit
  * @param      dictionary object <String,AnyObject>, index to be unwrapped
  * @return     unwrapped string
  */
-public func unwrapJSONString(array:Dictionary<String,AnyObject>, _ index:String)->String{
+public func unwrapJSONString(_ array:Dictionary<String,AnyObject>, _ index:String)->String{
     var value:String = ""
     if let _value = array[index] as? String{
         value = _value
@@ -32,7 +32,7 @@ public func unwrapJSONString(array:Dictionary<String,AnyObject>, _ index:String)
  * @param      dictionary object <String,AnyObject>, index to be unwrapped
  * @return     unwrapped string
  */
-public func unwrapJSONBool(array:Dictionary<String,AnyObject>, _ index:String)->Bool{
+public func unwrapJSONBool(_ array:Dictionary<String,AnyObject>, _ index:String)->Bool{
     var value:Bool = false
     if let _value = array[index] as? Bool {
         value = _value
@@ -47,7 +47,7 @@ public func unwrapJSONBool(array:Dictionary<String,AnyObject>, _ index:String)->
  * @param      dictionary object <String,AnyObject>, index to be unwrapped
  * @return     unwrapped int
  */
-public func unwrapJSONInt(array:Dictionary<String,AnyObject>, _ index:String)->Int{
+public func unwrapJSONInt(_ array:Dictionary<String,AnyObject>, _ index:String)->Int{
     var value:Int = 0
     if let _value = array[index] as? Int{
         value = _value
@@ -56,9 +56,9 @@ public func unwrapJSONInt(array:Dictionary<String,AnyObject>, _ index:String)->I
 }
 
 public func showStatusBarActivity(){
-     UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+     UIApplication.shared.isNetworkActivityIndicatorVisible = true
 }
 
 public func hideStatusBarActivity(){
-     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+     UIApplication.shared.isNetworkActivityIndicatorVisible = false
 }

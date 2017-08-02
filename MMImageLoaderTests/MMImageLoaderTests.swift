@@ -48,8 +48,8 @@ class MMImageLoaderTests: XCTestCase {
         networking.makeRequest(jsonURL) { (Status, Data) in //make first request
             if Status{
                 //check whether requested data saved in memory
-                let nsURL      = NSURL(string: self.jsonURL)
-                let URLRequest = NSURLRequest(URL: nsURL!, cachePolicy: networking.RequestCachePolicy, timeoutInterval: networking.URLRequestTimeOutInterval)
+                let nsURL      = URL(string: self.jsonURL)
+                let URLRequest = Foundation.URLRequest(url: nsURL!, cachePolicy: networking.RequestCachePolicy, timeoutInterval: networking.URLRequestTimeOutInterval)
                 networking.checkCache(URLRequest, completion: { (Status, Data) in
                     if Status{
                         XCTAssert(true)
@@ -91,7 +91,7 @@ class MMImageLoaderTests: XCTestCase {
     
 
     func testPerformance() {
-        self.measureBlock {
+        self.measure {
 //            self.testOtherDownloads()
             self.testImageDownloads()
         }

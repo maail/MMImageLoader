@@ -30,27 +30,27 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         
         //check for 3D Touch Availability
         if #available(iOS 9.0, *) {
-            if( traitCollection.forceTouchCapability == .Available){
-                registerForPreviewingWithDelegate(self, sourceView: view)
+            if( traitCollection.forceTouchCapability == .available){
+                registerForPreviewing(with: self, sourceView: view)
             }
         }
         
         //register custom UICollectionViewCell
         let xib : UINib           = UINib (nibName: "ImageCollectionViewCell", bundle: nil)
-        self.collectionView!.registerNib(xib, forCellWithReuseIdentifier: reuseIdentifier)
+        self.collectionView!.register(xib, forCellWithReuseIdentifier: reuseIdentifier)
         
         //pull to refresh setup
         self.collectionView?.alwaysBounceVertical = true
         self.refreshControl.attributedTitle       = NSAttributedString(string: "Pull to refresh")
-        self.refreshControl.tintColor             = UIColor.grayColor()
-        self.refreshControl.addTarget(self, action: #selector(ImageCollectionViewController.refresh), forControlEvents: UIControlEvents.ValueChanged)
+        self.refreshControl.tintColor             = UIColor.gray
+        self.refreshControl.addTarget(self, action: #selector(ImageCollectionViewController.refresh), for: UIControlEvents.valueChanged)
         collectionView!.addSubview(refreshControl)
         
         //add activity indicator on load
-        activityIndicator.frame                        = CGRectMake(0, 0, 50, 50);
+        activityIndicator.frame                        = CGRect(x: 0, y: 0, width: 50, height: 50);
         activityIndicator.center                       = self.view.center
         activityIndicator.hidesWhenStopped             = true
-        activityIndicator.activityIndicatorViewStyle   = UIActivityIndicatorViewStyle.WhiteLarge
+        activityIndicator.activityIndicatorViewStyle   = UIActivityIndicatorViewStyle.whiteLarge
         self.view.addSubview(activityIndicator)
     }
     
@@ -58,11 +58,11 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         self.collectionView?.backgroundColor = UIColor(red: 0.797, green: 0.797, blue: 0.797, alpha: 1)
     }
     
-    func refresh(sender:AnyObject?){
+    func refresh(_ sender:AnyObject?){
         self.loadData("Pull")
     }
     
-    func loadData(Type:String = ""){
+    func loadData(_ Type:String = ""){
         //Load Images from Unsplash.It and put in in an Array
         
         showStatusBarActivity()
@@ -80,7 +80,7 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
             
             if Status{
                 do{
-                    if let json = try NSJSONSerialization.JSONObjectWithData(Data, options: .AllowFragments) as? [[String: AnyObject]]{
+                    if let json = try JSONSerialization.jsonObject(with: Data, options: .allowFragments) as? [[String: AnyObject]]{
                         for list in json{
                             let Format    = unwrapJSONString(list, "format")
                             let Width     = unwrapJSONInt(list, "width")
@@ -107,23 +107,23 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
     }
   
     // MARK: UICollectionViewDataSource
-    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
 
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.imageArray.count
     }
 
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        var  cell:ImageCollectionViewCell? = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath) as? ImageCollectionViewCell
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        var  cell:ImageCollectionViewCell? = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? ImageCollectionViewCell
         if (cell == nil)
         {
-            let nib:Array = NSBundle.mainBundle().loadNibNamed("ImageCollectionViewCell", owner: self, options: nil)
+            let nib:Array = Bundle.main.loadNibNamed("ImageCollectionViewCell", owner: self, options: nil)!
             cell = nib[0] as? ImageCollectionViewCell
         }
         let source = self.imageArray[indexPath.row]
-        
+        cell?.imageView.image = UIImage(named: "PlaceHolder")
         if cell!.contentView.viewWithTag(source.ID + 1) == nil{
             cell?.imageView.image = UIImage(named: "PlaceHolder")
             cell!.imageView.tag   = source.ID + 1
@@ -132,10 +132,8 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
             imageLoader.requestImage(resizeImageURL) { (Status, Image) in
                 hideStatusBarActivity()
                 if Status{
-                   if let updateCell = self.collectionView?.cellForItemAtIndexPath(indexPath) as? ImageCollectionViewCell{
-                        updateCell.imageView.image = Image
-                        self.imagedDownloaded.append(source.ID)
-                   }
+                    cell?.imageView.image = Image
+                    self.imagedDownloaded.append(source.ID)
                 }
             }
         }
@@ -143,38 +141,38 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         return cell!
     }
     
-    func collectionView(collectionView: UICollectionView,layout collectionViewLayout: UICollectionViewLayout,sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize{
+    func collectionView(_ collectionView: UICollectionView,layout collectionViewLayout: UICollectionViewLayout,sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize{
         if DeviceType.IS_IPAD{
-            return  CGSizeMake(self.view.frame.width/3.3, self.view.frame.width/3.3)
+            return  CGSize(width: self.view.frame.width/3.3, height: self.view.frame.width/3.3)
         }else if DeviceType.IS_IPHONE_5{
-            return  CGSizeMake(self.view.frame.width/3.6, self.view.frame.width/3.6)
+            return  CGSize(width: self.view.frame.width/3.6, height: self.view.frame.width/3.6)
         }else if DeviceType.IS_IPHONE_6P{
-            return  CGSizeMake(self.view.frame.width/3.5, self.view.frame.width/3.5)
+            return  CGSize(width: self.view.frame.width/3.5, height: self.view.frame.width/3.5)
         }else{
-            return  CGSizeMake(self.view.frame.width/3.5, self.view.frame.width/3.5)
+            return  CGSize(width: self.view.frame.width/3.5, height: self.view.frame.width/3.5)
         }
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat {
         return 15.0
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat {
         return 15.0
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
         return UIEdgeInsetsMake(15, 10, 15, 10)
     }
     
-    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        self.performSegueWithIdentifier("ImageSegueDetails", sender: indexPath)
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.performSegue(withIdentifier: "ImageSegueDetails", sender: indexPath)
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ImageSegueDetails"{
-            let vc           = segue.destinationViewController  as! ImageDetailsViewController
-            let indexPath    = sender as! NSIndexPath
+            let vc           = segue.destination  as! ImageDetailsViewController
+            let indexPath    = sender as! IndexPath
             vc.imageDetails  = self.imageArray[indexPath.row]
         }
     }
@@ -182,12 +180,12 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
     
     // MARK: UIViewControllerPreviewingDelegate
     
-    func previewingContext(previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         
-        let point : CGPoint         = self.collectionView!.convertPoint(location, fromView: collectionView!.superview)
-        let indexPath               = self.collectionView!.indexPathForItemAtPoint(point)
+        let point : CGPoint         = self.collectionView!.convert(location, from: collectionView!.superview)
+        let indexPath               = self.collectionView!.indexPathForItem(at: point)
         let storyboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc                      = storyboard.instantiateViewControllerWithIdentifier("ImageDetailsViewController") as! ImageDetailsViewController
+        let vc                      = storyboard.instantiateViewController(withIdentifier: "ImageDetailsViewController") as! ImageDetailsViewController
         vc.imageDetails             = self.imageArray[indexPath!.row]
         vc.preferredContentSize     = CGSize(width: 0.0, height: 450)
  
@@ -195,8 +193,8 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         
     }
     
-    func previewingContext(previewingContext: UIViewControllerPreviewing, commitViewController viewControllerToCommit: UIViewController) {
-        showViewController(viewControllerToCommit, sender: self)
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
     }
 
     

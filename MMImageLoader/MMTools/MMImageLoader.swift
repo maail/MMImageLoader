@@ -18,22 +18,22 @@ class MMImageLoader {
      * @param      NSURL
      * @return     Status, Data
      */
-    func requestImage(URL:String, completion: (Status:Bool, Image:UIImage) -> ()){
+    func requestImage(_ URL:String, completion: @escaping (_ Status:Bool, _ Image:UIImage) -> ()){
         MMNetworking.sharedManager.makeRequest(URL) { (Status, Data) in
             if Status{
                 if let image = UIImage(data: Data){
-                    dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                        completion(Status: true, Image: image)
+                    DispatchQueue.main.async { () -> Void in
+                        completion(true, image)
                     }
                 }else{
-                    dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                    DispatchQueue.main.async { () -> Void in
                         print("MMImageLoaderErrorDescription: No image available for URL (\(URL))")
-                        completion(Status: false, Image: UIImage())
+                        completion(false, UIImage())
                     }
                 }
             }else{
-                dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                    completion(Status: false, Image: UIImage())
+                DispatchQueue.main.async { () -> Void in
+                    completion(false, UIImage())
                 }
             }
         }
@@ -47,7 +47,7 @@ class MMImageLoader {
      * @param      NSURL
      * @return     void
      */
-    func cancelImageDownload(URL:NSURL){
+    func cancelImageDownload(_ URL:Foundation.URL){
         MMNetworking.sharedManager.cancelConnection(URL)
     }
     
